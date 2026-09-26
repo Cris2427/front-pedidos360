@@ -1,0 +1,720 @@
+/* ==========================================================================
+   Pedidos360 — sistema visual
+   --------------------------------------------------------------------------
+   Paleta petróleo con acento ocre. El petróleo es la marca (navegación,
+   acciones primarias); el ocre se reserva para lo que pide atención. Los
+   colores de estado son independientes de la marca y nunca se reutilizan
+   como "un color más": cada uno significa una sola cosa.
+   ========================================================================== */
+
+:root {
+  /* Tinta */
+  --ink: #101b1d;
+  --ink-2: #4e6469;
+  --ink-3: #7b9095;
+
+  /* Superficies */
+  --ground: #eef2f2;
+  --surface: #ffffff;
+  --surface-2: #f6f9f9;
+  --line: #e0e8e8;
+  --line-2: #c7d6d6;
+
+  /* Marca */
+  --brand: #0d5b62;
+  --brand-700: #084348;
+  --brand-300: #7fb3b7;
+  --brand-tint: #dcecec;
+
+  /* Acento: atención, no marca */
+  --accent: #b4610c;
+  --accent-tint: #fbeeda;
+
+  /* Estados */
+  --good: #14713f;
+  --good-tint: #dcf0e4;
+  --warn: #8a5a00;
+  --warn-tint: #fbeed2;
+  --danger: #9d2733;
+  --danger-tint: #fbe4e6;
+  --info: #4a3f9e;
+  --info-tint: #e8e5f8;
+
+  --radius: 14px;
+  --radius-sm: 8px;
+  --sombra: 0 1px 2px rgb(16 27 29 / 0.04), 0 8px 24px -12px rgb(16 27 29 / 0.14);
+
+  --fuente: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', 'Cascadia Mono', Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--fuente);
+  background-color: var(--ground);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Barra superior ---------- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--brand-700);
+  color: #ffffff;
+  padding: 0.85rem 1.75rem;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.logo svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.logo span {
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.35rem;
+  flex: 1 1 auto;
+}
+
+.nav-link {
+  color: rgb(255 255 255 / 0.75);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+  background: rgb(255 255 255 / 0.08);
+}
+
+.nav-link.active {
+  color: var(--brand-700);
+  background: #ffffff;
+}
+
+/* ---------- Contenedor ---------- */
+.container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.card {
+  background: var(--surface);
+  padding: 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+  max-width: 460px;
+  width: 100%;
+}
+
+.card-wide {
+  max-width: 1040px;
+}
+
+.card > h2 {
+  font-size: 1.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.subtitle {
+  color: var(--ink-2);
+  font-size: 0.92rem;
+  margin: 0.4rem 0 1.25rem;
+}
+
+.muted {
+  color: var(--ink-3);
+  font-size: 0.85rem;
+}
+
+/* ---------- Portada ---------- */
+.portada {
+  text-align: center;
+}
+
+.portada-marca {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1.25rem;
+  border-radius: var(--radius-sm);
+  background: var(--brand);
+  color: #ffffff;
+  display: grid;
+  place-content: center;
+}
+
+.portada h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.portada .subtitle {
+  max-width: 34ch;
+  margin-inline: auto;
+  margin-bottom: 1.75rem;
+}
+
+.portada-pie {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--ink-3);
+}
+
+/* ---------- Avatar ---------- */
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.avatar-inline {
+  width: 46px;
+  height: 46px;
+  font-size: 1.2rem;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* ---------- Botones ---------- */
+.btn {
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 0.55rem 1.05rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--brand-700);
+}
+
+/* En la barra oscura el primario se invierte para no competir con el fondo */
+.navbar .btn-primary {
+  background: #ffffff;
+  color: var(--brand-700);
+}
+
+.navbar .btn-primary:hover:not(:disabled) {
+  background: var(--brand-tint);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-2);
+  color: var(--ink);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--ink-3);
+}
+
+.navbar .btn-ghost {
+  border-color: rgb(255 255 255 / 0.35);
+  color: #ffffff;
+}
+
+.navbar .btn-ghost:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.1);
+  border-color: rgb(255 255 255 / 0.6);
+}
+
+.btn-danger {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-tint);
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+}
+
+.btn-sm {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------- Formulario en línea ---------- */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  padding: 1.1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1 1 160px;
+}
+
+.field-sm {
+  flex: 0 1 110px;
+}
+
+.field > span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+
+.field input,
+.field select {
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: -1px;
+  border-color: var(--brand);
+}
+
+.total {
+  padding: 0.5rem 0;
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* ---------- Tabla ---------- */
+.table-scroll {
+  overflow-x: auto;
+  margin-inline: -0.25rem;
+  padding-inline: 0.25rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.table th,
+.table td {
+  padding: 0.7rem 0.9rem 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table thead th {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+  border-bottom-color: var(--line-2);
+  padding-top: 0;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--surface-2);
+}
+
+.table td code {
+  color: var(--ink-2);
+  font-size: 0.78rem;
+  /* Un id partido en dos líneas es ilegible: que la tabla se desplace. */
+  white-space: nowrap;
+}
+
+/* Columna de correo: se recorta con puntos suspensivos en vez de estirar la
+   tabla. El valor completo queda en el title del elemento. */
+.table .cliente {
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  padding-right: 1.25rem;
+}
+
+/* OJO: nada de `display: flex` sobre un <td>. Eso lo saca del modelo de
+   tabla y el navegador empieza a generar celdas anónimas, con lo que la
+   columna se desploma debajo de la anterior. La celda sigue siendo una celda
+   y los botones se separan con margen. */
+.table td.actions {
+  white-space: nowrap;
+}
+
+.table td.actions .btn + .btn {
+  margin-left: 0.35rem;
+}
+
+.table td.actions .muted {
+  white-space: nowrap;
+}
+
+/* ---------- Etiquetas de estado ---------- */
+.badge {
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  border: 1px solid var(--line-2);
+  white-space: nowrap;
+}
+
+.badge-creado {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  border-color: var(--line-2);
+}
+
+.badge-aceptado,
+.badge-en_preparacion {
+  background: var(--warn-tint);
+  color: var(--warn);
+  border-color: transparent;
+}
+
+.badge-despachado {
+  background: var(--info-tint);
+  color: var(--info);
+  border-color: transparent;
+}
+
+.badge-entregado {
+  background: var(--good-tint);
+  color: var(--good);
+  border-color: transparent;
+}
+
+.badge-cancelado,
+.badge-danger {
+  background: var(--danger-tint);
+  color: var(--danger);
+  border-color: transparent;
+}
+
+.badge-rol {
+  background: var(--brand-tint);
+  color: var(--brand-700);
+  border-color: transparent;
+}
+
+/* ---------- Mensaje de error ---------- */
+.alert {
+  background: var(--danger-tint);
+  border-left: 3px solid var(--danger);
+  color: var(--danger);
+  padding: 0.75rem 1rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 1.25rem;
+  font-size: 0.88rem;
+  word-break: break-word;
+}
+
+/* ---------- Panel de resumen ---------- */
+.panel-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1.35rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.75rem;
+}
+
+.panel-head h2 {
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+.panel-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.84rem;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.panel {
+  margin-bottom: 2.25rem;
+}
+
+.panel-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-3);
+  margin-bottom: 0.9rem;
+}
+
+/* KPIs: una rejilla con separadores finos, no tarjetas sueltas */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.kpi {
+  background: var(--surface);
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.kpi-label {
+  font-size: 0.76rem;
+  color: var(--ink-2);
+}
+
+.kpi-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.kpi-alerta {
+  color: var(--danger);
+}
+
+.kpi-detalle {
+  font-size: 0.73rem;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barras: una sola tonalidad, el largo es el dato */
+.grafico {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.grafico-titulo {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.grafico-fila {
+  display: grid;
+  grid-template-columns: minmax(90px, 160px) 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.85rem;
+}
+
+.grafico-etiqueta {
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grafico-pista {
+  height: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.grafico-barra {
+  height: 16px;
+  background: var(--brand);
+  /* Extremo del dato redondeado, base recta: la barra nace de una línea */
+  border-radius: 0 4px 4px 0;
+  min-width: 3px;
+  transition: width 0.3s ease;
+}
+
+.grafico-valor {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 3.5ch;
+  text-align: right;
+}
+
+/* ---------- Detalle técnico, plegado ---------- */
+.tecnico {
+  margin-top: 1.75rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.tecnico > summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.tecnico > summary:hover {
+  color: var(--brand);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .container {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .card {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+/* Bajo este ancho la etiqueta y el valor no dejan sitio a la barra:
+   se apilan y la barra ocupa su propia línea completa. */
+@media (max-width: 560px) {
+  .grafico-fila {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'etiqueta valor'
+      'pista    pista';
+    gap: 0.2rem 0.5rem;
+  }
+
+  .grafico-etiqueta {
+    grid-area: etiqueta;
+    color: var(--ink);
+  }
+
+  .grafico-valor {
+    grid-area: valor;
+  }
+
+  .grafico-pista {
+    grid-area: pista;
+    margin-bottom: 0.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
