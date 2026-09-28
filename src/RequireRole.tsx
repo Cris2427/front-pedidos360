@@ -1,14 +1,5 @@
-// src/RequireRole.tsx
-// Guard de AUTORIZACIÓN a nivel de ruta. Se anida DENTRO de <RequireAuth/> en
-// App.tsx, así que cuando este guard corre ya sabemos que hay sesión activa —
-// solo falta decidir si el usuario tiene el permiso para esta sección.
-//
-// Acepta un rol o una lista: <RequireRole role={['Admin', 'Operador']} />
-// deja pasar a quien tenga cualquiera de los dos.
-//
-// Importante: esto SOLO oculta la vista en el navegador — es UX, no
-// seguridad. Un usuario podría llamar la API directamente sin pasar por este
-// guard, así que la Lambda revalida el mismo claim en cada endpoint.
+// esto solo esconde la pantalla, no es seguridad: la lambda revisa el mismo
+// rol en cada endpoint
 import { Outlet } from 'react-router-dom';
 import { useRoles } from './useRoles';
 

@@ -1,14 +1,10 @@
-// src/TokenInspector.tsx
-// Herramienta de aprendizaje: obtiene el access token para la API y muestra
-// sus claims relevantes para autorización (aud, scp, roles, exp).
 import { useState } from 'react';
 import { useMsal } from '@azure/msal-react';
 import { acquireApiToken } from './api/client';
 import { apiConfig } from './authConfig';
 import { decodeJwt, scopesOf, type JwtClaims } from './lib/jwt';
 
-// Los scopes del .env vienen como URI completa (api://<id>/orders.read); en el
-// claim `scp` llegan con el nombre corto. Comparamos por el último segmento.
+// en el .env van con la uri completa y en el claim scp llegan cortos
 const nombreCorto = (scope: string) => scope.split('/').pop() ?? scope;
 
 export function TokenInspector() {
@@ -28,7 +24,6 @@ export function TokenInspector() {
       const accessToken = await acquireApiToken(instance, account);
       setToken(accessToken);
       setClaims(decodeJwt(accessToken));
-      // Para pegar en jwt.ms:
       console.log('[TokenInspector] access_token:', accessToken);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al obtener el token');
@@ -55,7 +50,7 @@ export function TokenInspector() {
             <code>{claims.exp ? new Date(claims.exp * 1000).toLocaleString() : '?'}</code>
           </div>
 
-          {/* Comprobación explícita: ¿llegaron los scopes que pide el .env?
+          {/* revisa si llegaron los cuatro scopes del .env
               Si falta alguno, el permiso no está agregado o no se concedió
               el consentimiento en Entra ID (Permisos de API). */}
           <div style={{ marginTop: '0.75rem' }}>

@@ -21,25 +21,21 @@ export const msalConfig: Configuration = {
   },
 };
 
-// Scopes solicitados en el login inicial. Con OIDC basta openid/profile;
-// dejamos User.Read para poder inspeccionar el perfil vía Graph si se quiere.
+// los del login, solo para entrar
 export const loginRequest = {
   scopes: ['openid', 'profile', 'User.Read'],
 };
 
-// --- Configuración del backend protegido (API Gateway + JWT authorizer) ---
 export const apiConfig = {
   baseUrl: (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') ?? '',
-  // Puede haber varios scopes separados por espacio en el .env
   scopes: ((import.meta.env.VITE_API_SCOPE as string | undefined) ?? '')
     .split(' ')
     .map((s) => s.trim())
     .filter(Boolean),
 };
 
-// Scopes que se piden a Entra al llamar al backend. El access token resultante
-// tendrá  aud = tu API  y el claim  scp  con estos scopes, que las Lambdas
-// pueden verificar para autorización fina por ruta.
+// estos son los de la api: el token que sale de aca trae aud y scp, que es
+// lo que revisan las lambdas
 export const apiRequest = {
   scopes: apiConfig.scopes,
 };

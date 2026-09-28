@@ -1,6 +1,3 @@
-// src/Landing.tsx
-// Página PÚBLICA (no está detrás de RequireAuth). Solo ofrece el acceso;
-// todo el contenido protegido vive detrás de los guards.
 import { Link } from 'react-router-dom';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { InteractionStatus } from '@azure/msal-browser';

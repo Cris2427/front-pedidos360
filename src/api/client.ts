@@ -1,9 +1,3 @@
-// src/api/client.ts
-// Cliente HTTP reutilizable para el backend protegido por API Gateway + JWT authorizer.
-// Se encarga de: obtener el access token de Entra (aud = tu API), inyectar el
-// header Authorization, y normalizar errores. Cada dominio tiene su archivo
-// hermano (src/api/orders.ts, src/api/catalog.ts) y reutiliza este cliente.
-
 import type { IPublicClientApplication, AccountInfo } from '@azure/msal-browser';
 import { BrowserAuthError, InteractionRequiredAuthError } from '@azure/msal-browser';
 import { apiConfig, apiRequest } from '../authConfig';
@@ -30,14 +24,8 @@ function safeJson(text: string): unknown {
   }
 }
 
-/**
- * Obtiene un access token para el backend (aud = tu API).
- * - Intenta silenciosamente (acquireTokenSilent → usa cache o iframe oculto).
- * - Si falla (consentimiento nuevo, sesión expirada, MFA, o el iframe silencioso
- *   no funciona por bloqueo de cookies de terceros → error `timed_out`),
- *   cae a un redirect interactivo para obtener/consentir el scope de la API.
- *   El redirect recarga la página; al volver, MSAL ya tiene el token en cache.
- */
+// primero intenta en silencio; si el navegador bloquea el iframe o la sesion
+// vencio, manda a entra con un redirect
 export async function acquireApiToken(
   instance: IPublicClientApplication,
   account: AccountInfo,
@@ -53,7 +41,6 @@ export async function acquireApiToken(
           error.errorCode,
         ));
     if (needsInteraction) {
-      // No vuelve: la página navega a Entra y regresa al redirectUri.
       await instance.acquireTokenRedirect({ ...apiRequest, account });
     }
     throw error;
@@ -83,6 +70,7 @@ export function createApiClient(
     const token = await acquireApiToken(instance, account);
     const url = `${apiConfig.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 
+    // aca va el token en cada llamada
     const response = await fetch(url, {
       ...init,
       headers: {
@@ -113,11 +101,7 @@ export function createApiClient(
   };
 }
 
-/**
- * Normaliza la respuesta de un endpoint de listado: algunas Lambdas devuelven
- * el array pelado y otras lo envuelven (`{ items: [...] }`, `{ data: [...] }`).
- * Así el front no se rompe si el backend cambia de forma.
- */
+// acepta tanto [] como { items: [] }
 export function unwrapList<T>(raw: unknown, ...keys: string[]): T[] {
   if (Array.isArray(raw)) return raw as T[];
   if (raw && typeof raw === 'object') {

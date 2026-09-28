@@ -1,4 +1,3 @@
-// src/App.tsx
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { useRoles } from './useRoles';
@@ -8,12 +7,10 @@ import { RequireAuth } from './RequireAuth';
 import { RequireRole } from './RequireRole';
 import { Landing } from './Landing';
 import { Dashboard } from './Dashboard';
-import { CatalogView } from './Catalog'; // Importamos la vista de Catálogo
-import { OrdersView } from './Orders';   // Importamos la vista de Pedidos
+import { CatalogView } from './Catalog';
+import { OrdersView } from './Orders';
 
-// Qué sección ve cada perfil. Es la misma matriz que aplica el backend: el
-// menú se adapta, pero si alguien entra por la URL directa el guard lo
-// detiene, y si llama la API sin permiso la Lambda responde 403.
+// que ve cada perfil, la misma tabla que aplica el backend
 const SECCIONES = [
   { to: '/dashboard', texto: 'Dashboard', roles: null },
   { to: '/catalog', texto: 'Catálogo', roles: ['Admin', 'Operador'] },
@@ -100,21 +97,15 @@ export default function App() {
         <Nav />
         <main className="container">
           <Routes>
-            {/* Ruta pública */}
             <Route path="/" element={<Landing />} />
 
-            {/* Guard de AUTENTICACIÓN: requiere inicio de sesión */}
             <Route element={<RequireAuth />}>
               <Route path="/dashboard" element={<Dashboard />} />
 
-              {/* Pedidos: CRUD del Cliente y del Operador. El Admin
-                  administra el catálogo, no los pedidos. */}
               <Route element={<RequireRole role={['Cliente', 'Operador']} />}>
                 <Route path="/orders" element={<OrdersView />} />
               </Route>
 
-              {/* Catálogo: Admin lo administra; el Operador solo consulta
-                  el stock para atender pedidos. */}
               <Route element={<RequireRole role={['Admin', 'Operador']} />}>
                 <Route path="/catalog" element={<CatalogView />} />
               </Route>

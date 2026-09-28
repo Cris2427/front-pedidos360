@@ -1,6 +1,3 @@
-// src/Catalog.tsx
-// Vista PROTEGIDA (cuelga de <RequireAuth/>): gestión del CATÁLOGO.
-// Listar productos (catalog.read) + alta y ajuste de stock (catalog.write).
 import { useCallback, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useApi } from './useApi';
@@ -13,7 +10,6 @@ const emptyForm = { nombre: '', precio: '', stock: '' };
 
 export function CatalogView() {
   const api = useApi();
-  // El caso asigna el catálogo al Admin: el Operador entra pero solo consulta.
   const { has } = useRoles();
   const puedeEditar = has('Admin');
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,11 +21,8 @@ export function CatalogView() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const loadProducts = useCallback(async () => {
-    // `api` es null mientras MSAL aún no resuelve la cuenta activa.
     if (!api) return;
     try {
-      // Nada de setState antes del await: el estado de carga arranca en `true`
-      // y solo se apaga al terminar, así el efecto no encadena renders.
       const data = await catalogApi.getProducts(api);
       setProducts(data);
       setError(null);
@@ -108,7 +101,7 @@ export function CatalogView() {
     if (nuevo < 0) return;
 
     setError(null);
-    // Optimista: refleja el cambio y lo revierte recargando si la API falla.
+    // lo mostramos al tiro y si la api falla recargamos
     setProducts((prev) =>
       prev.map((p) => (p.id === product.id ? { ...p, stock: nuevo } : p)),
     );

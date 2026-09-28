@@ -1,12 +1,10 @@
-// src/lib/jwt.ts
-// Decodifica el payload de un JWT SOLO para inspección en el cliente.
-// NO valida la firma: la validación real la hace el JWT authorizer del API Gateway.
+// solo abre el token para mirarlo, no valida la firma
 
 export interface JwtClaims {
   aud?: string;
   iss?: string;
-  scp?: string; // scopes delegados, separados por espacio
-  roles?: string[]; // app roles
+  scp?: string;
+  roles?: string[];
   exp?: number;
   iat?: number;
   [key: string]: unknown;

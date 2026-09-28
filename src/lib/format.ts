@@ -1,7 +1,3 @@
-// src/lib/format.ts
-// Formato de números para la interfaz, en una sola parte.
-
-/** Pesos chilenos, sin decimales: $499.990 */
 export function formatCLP(value: number): string {
   return Number.isFinite(value)
     ? value.toLocaleString('es-CL', {
@@ -12,15 +8,11 @@ export function formatCLP(value: number): string {
     : '—';
 }
 
-/** Miles con separador: 1.284 */
 export function formatNumero(value: number): string {
   return Number.isFinite(value) ? value.toLocaleString('es-CL') : '—';
 }
 
-/**
- * Montos grandes compactos para las tarjetas de KPI: $4,2M, $320K.
- * Bajo 100.000 se muestra el valor completo, que todavía cabe.
- */
+// version corta para las tarjetas: $4,2M, $320K
 export function formatCompacto(value: number): string {
   if (!Number.isFinite(value)) return '—';
   if (Math.abs(value) >= 1_000_000) {

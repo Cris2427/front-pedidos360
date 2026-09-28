@@ -1,13 +1,5 @@
-// src/Dashboard.tsx
-// Vista PROTEGIDA: resumen de actividad según el perfil, como pide el caso.
-//
-//   Cliente   — sus pedidos: cuántos, en qué estado, cuánto lleva gastado.
-//   Operador  — la operación completa: pedidos en curso, ventas, ticket medio.
-//   Admin     — el catálogo: productos, unidades y valor del inventario.
-//
-// El Admin no ve ventas porque no tiene acceso al dominio de pedidos: su
-// panel se arma solo con datos del catálogo. Cada panel pide únicamente los
-// endpoints que su rol puede leer, así que ninguno provoca un 403.
+// cada panel pide solo los endpoints que su rol puede leer, asi ninguno se
+// come un 403
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMsal } from '@azure/msal-react';
 import { useApi } from './useApi';
@@ -18,7 +10,6 @@ import { catalogApi, type Product } from './api/catalog';
 import { describeError } from './lib/errors';
 import { formatCLP, formatCompacto, formatNumero } from './lib/format';
 
-/** Estados que cuentan como "pedido en curso" (ni entregado ni cancelado). */
 const EN_CURSO: OrderStatus[] = ['CREADO', 'ACEPTADO', 'EN_PREPARACION', 'DESPACHADO'];
 
 const ORDEN_ESTADOS: OrderStatus[] = [
@@ -47,7 +38,6 @@ export function Dashboard() {
   const cargar = useCallback(async () => {
     if (!api || cargandoRoles) return;
     try {
-      // Nada de setState antes del await: el estado de carga arranca en true.
       const [pedidos, productos] = await Promise.all([
         verPedidos ? ordersApi.getOrders(api) : Promise.resolve([]),
         verCatalogo ? catalogApi.getProducts(api) : Promise.resolve([]),
@@ -205,7 +195,6 @@ export function Dashboard() {
   );
 }
 
-/** Tarjeta de KPI: etiqueta, valor y un detalle opcional. */
 function Kpi({
   etiqueta,
   valor,
@@ -226,10 +215,7 @@ function Kpi({
   );
 }
 
-/**
- * Barras horizontales de una sola tonalidad: el color no codifica nada, el
- * largo sí. El valor va al extremo de cada barra, no repartido por el gráfico.
- */
+// el color no dice nada, el largo si
 function Barras({
   titulo,
   datos,

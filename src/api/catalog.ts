@@ -1,6 +1,5 @@
-// src/api/catalog.ts
-// Dominio CATÁLOGO. Scopes: catalog.read / catalog.write.
-// En AWS cada operación es una Lambda distinta (una por método y ruta).
+// llamadas del catalogo
+// cada una pega a una lambda distinta en aws
 import type { ApiClient } from './client';
 import { unwrapList } from './client';
 
@@ -12,25 +11,22 @@ export interface Product {
 }
 
 export const catalogApi = {
-  // GET /api/catalog  ·  scope catalog.read  ·  cualquier rol
+  // lo puede leer cualquiera que tenga el scope
   getProducts: async (api: ApiClient): Promise<Product[]> => {
     const raw = await api.get<unknown>('/api/catalog');
     return unwrapList<Product>(raw, 'products', 'productos', 'catalog');
   },
 
-  // POST /api/catalog  ·  catalog.write  ·  rol Admin
+  // crear, editar, stock y borrar son solo del admin
   createProduct: (api: ApiClient, product: Omit<Product, 'id'>): Promise<Product> =>
     api.post<Product>('/api/catalog', product),
 
-  // PUT /api/catalog/{id}  ·  catalog.write  ·  rol Admin
   updateProduct: (api: ApiClient, id: string, product: Omit<Product, 'id'>): Promise<Product> =>
     api.put<Product>(`/api/catalog/${encodeURIComponent(id)}`, product),
 
-  // PUT /api/catalog/{id}/stock  ·  catalog.write  ·  rol Admin
   updateStock: (api: ApiClient, id: string, stock: number): Promise<Product> =>
     api.put<Product>(`/api/catalog/${encodeURIComponent(id)}/stock`, { stock }),
 
-  // DELETE /api/catalog/{id}  ·  catalog.write  ·  rol Admin
   deleteProduct: (api: ApiClient, id: string): Promise<{ eliminado: string }> =>
     api.del<{ eliminado: string }>(`/api/catalog/${encodeURIComponent(id)}`),
 };

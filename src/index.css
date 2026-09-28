@@ -1,36 +1,33 @@
-/* ==========================================================================
-   Pedidos360 — sistema visual
-   --------------------------------------------------------------------------
-   Paleta petróleo con acento ocre. El petróleo es la marca (navegación,
-   acciones primarias); el ocre se reserva para lo que pide atención. Los
-   colores de estado son independientes de la marca y nunca se reutilizan
-   como "un color más": cada uno significa una sola cosa.
-   ========================================================================== */
+/* estilos de pedidos360
+   el petroleo es el color de la marca (navegacion, botones principales) y el
+   ocre queda solo para lo que necesita atencion
+   los colores de estado son aparte y cada uno significa una sola cosa, no los
+   reusamos como "un color mas" */
 
 :root {
-  /* Tinta */
+  /* textos */
   --ink: #101b1d;
   --ink-2: #4e6469;
   --ink-3: #7b9095;
 
-  /* Superficies */
+  /* fondos */
   --ground: #eef2f2;
   --surface: #ffffff;
   --surface-2: #f6f9f9;
   --line: #e0e8e8;
   --line-2: #c7d6d6;
 
-  /* Marca */
+  /* marca */
   --brand: #0d5b62;
   --brand-700: #084348;
   --brand-300: #7fb3b7;
   --brand-tint: #dcecec;
 
-  /* Acento: atención, no marca */
+  /* acento, solo para llamar la atencion */
   --accent: #b4610c;
   --accent-tint: #fbeeda;
 
-  /* Estados */
+  /* estados */
   --good: #14713f;
   --good-tint: #dcf0e4;
   --warn: #8a5a00;
@@ -80,7 +77,7 @@ code {
   flex-direction: column;
 }
 
-/* ---------- Barra superior ---------- */
+/* barra de arriba */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -137,7 +134,7 @@ code {
   background: #ffffff;
 }
 
-/* ---------- Contenedor ---------- */
+/* contenedor */
 .container {
   flex: 1;
   display: flex;
@@ -180,7 +177,7 @@ code {
   font-size: 0.85rem;
 }
 
-/* ---------- Portada ---------- */
+/* portada */
 .portada {
   text-align: center;
 }
@@ -215,7 +212,7 @@ code {
   color: var(--ink-3);
 }
 
-/* ---------- Avatar ---------- */
+/* avatar */
 .avatar {
   width: 56px;
   height: 56px;
@@ -238,7 +235,7 @@ code {
   flex-shrink: 0;
 }
 
-/* ---------- Botones ---------- */
+/* botones */
 .btn {
   font-family: inherit;
   font-size: 0.88rem;
@@ -265,7 +262,7 @@ code {
   background: var(--brand-700);
 }
 
-/* En la barra oscura el primario se invierte para no competir con el fondo */
+/* en la barra oscura se invierte para que no se pierda con el fondo */
 .navbar .btn-primary {
   background: #ffffff;
   color: var(--brand-700);
@@ -321,7 +318,7 @@ code {
   cursor: not-allowed;
 }
 
-/* ---------- Formulario en línea ---------- */
+/* formularios en linea */
 .form-row {
   display: flex;
   flex-wrap: wrap;
@@ -378,7 +375,7 @@ code {
   white-space: nowrap;
 }
 
-/* ---------- Tabla ---------- */
+/* tablas */
 .table-scroll {
   overflow-x: auto;
   margin-inline: -0.25rem;
@@ -420,12 +417,12 @@ code {
 .table td code {
   color: var(--ink-2);
   font-size: 0.78rem;
-  /* Un id partido en dos líneas es ilegible: que la tabla se desplace. */
+  /* un id cortado en dos lineas no se lee, mejor que la tabla se desplace */
   white-space: nowrap;
 }
 
-/* Columna de correo: se recorta con puntos suspensivos en vez de estirar la
-   tabla. El valor completo queda en el title del elemento. */
+/* los correos largos se cortan con puntos suspensivos en vez de estirar la
+   tabla, el completo queda en el title */
 .table .cliente {
   max-width: 24ch;
   overflow: hidden;
@@ -439,10 +436,10 @@ code {
   padding-right: 1.25rem;
 }
 
-/* OJO: nada de `display: flex` sobre un <td>. Eso lo saca del modelo de
-   tabla y el navegador empieza a generar celdas anónimas, con lo que la
-   columna se desploma debajo de la anterior. La celda sigue siendo una celda
-   y los botones se separan con margen. */
+/* ojo: no poner display flex en un td
+   eso lo saca del modelo de tabla y el navegador empieza a inventar celdas,
+   con lo que la columna se cae debajo de la anterior
+   la celda queda como celda y los botones se separan con margen */
 .table td.actions {
   white-space: nowrap;
 }
@@ -455,7 +452,7 @@ code {
   white-space: nowrap;
 }
 
-/* ---------- Etiquetas de estado ---------- */
+/* etiquetas de estado */
 .badge {
   display: inline-block;
   padding: 0.18rem 0.6rem;
@@ -506,7 +503,7 @@ code {
   border-color: transparent;
 }
 
-/* ---------- Mensaje de error ---------- */
+/* mensajes de error */
 .alert {
   background: var(--danger-tint);
   border-left: 3px solid var(--danger);
@@ -518,7 +515,7 @@ code {
   word-break: break-word;
 }
 
-/* ---------- Panel de resumen ---------- */
+/* dashboard */
 .panel-head {
   display: flex;
   align-items: center;
@@ -556,7 +553,7 @@ code {
   margin-bottom: 0.9rem;
 }
 
-/* KPIs: una rejilla con separadores finos, no tarjetas sueltas */
+/* los kpi van en una rejilla con lineas finas, no como tarjetas sueltas */
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
@@ -597,7 +594,7 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
-/* Barras: una sola tonalidad, el largo es el dato */
+/* barras de un solo color, lo que importa es el largo */
 .grafico {
   margin-top: 1.75rem;
   display: flex;
@@ -635,7 +632,7 @@ code {
 .grafico-barra {
   height: 16px;
   background: var(--brand);
-  /* Extremo del dato redondeado, base recta: la barra nace de una línea */
+  /* la punta redondeada y la base recta, como si naciera de una linea */
   border-radius: 0 4px 4px 0;
   min-width: 3px;
   transition: width 0.3s ease;
@@ -648,7 +645,7 @@ code {
   text-align: right;
 }
 
-/* ---------- Detalle técnico, plegado ---------- */
+/* el detalle del token, plegado */
 .tecnico {
   margin-top: 1.75rem;
   border-top: 1px solid var(--line);
@@ -666,7 +663,7 @@ code {
   color: var(--brand);
 }
 
-/* ---------- Responsive ---------- */
+/* pantallas chicas */
 @media (max-width: 720px) {
   .navbar {
     padding: 0.75rem 1rem;
@@ -687,8 +684,8 @@ code {
   }
 }
 
-/* Bajo este ancho la etiqueta y el valor no dejan sitio a la barra:
-   se apilan y la barra ocupa su propia línea completa. */
+/* mas angosto que esto la etiqueta y el numero no dejan espacio para la
+   barra, asi que se apilan y la barra usa su propia linea */
 @media (max-width: 560px) {
   .grafico-fila {
     grid-template-columns: 1fr auto;

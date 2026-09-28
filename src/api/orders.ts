@@ -1,7 +1,6 @@
-// src/api/orders.ts
-// Dominio PEDIDOS. Scopes: orders.read / orders.write.
-// El CRUD es del Cliente y del Operador; el Admin no participa.
-// En AWS cada operación es una Lambda distinta (una por método y ruta).
+// llamadas de pedidos
+// el crud es del cliente y del operador, el admin no entra aca
+// cada operacion pega a una lambda distinta en aws
 import type { ApiClient } from './client';
 import { unwrapList } from './client';
 
@@ -28,10 +27,9 @@ export interface Order {
   creadoEn?: string;
 }
 
-/**
- * Máquina de estados del pedido: desde cada estado, a cuáles se puede pasar.
- * La UI solo ofrece las transiciones válidas; la Lambda las revalida.
- */
+// de cada estado, a cuales se puede pasar
+// con esto dibujamos solo los botones que corresponden, igual la lambda lo
+// vuelve a revisar
 export const ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   CREADO: ['ACEPTADO', 'CANCELADO'],
   ACEPTADO: ['EN_PREPARACION', 'CANCELADO'],
@@ -50,35 +48,32 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   CANCELADO: 'Cancelado',
 };
 
-/** Un pedido solo se edita o elimina mientras no tenga stock comprometido. */
+// solo se puede tocar mientras no haya stock comprometido
 export const ESTADOS_EDITABLES: OrderStatus[] = ['CREADO'];
 export const ESTADOS_BORRABLES: OrderStatus[] = ['CREADO', 'CANCELADO'];
 
 export type NuevoPedido = Pick<Order, 'clienteId' | 'items'>;
 
 export const ordersApi = {
-  // GET /api/orders  ·  orders.read  ·  Cliente (los suyos) u Operador (todos)
+  // el cliente ve los suyos y el operador ve todos, eso lo filtra el backend
   getOrders: async (api: ApiClient): Promise<Order[]> => {
     const raw = await api.get<unknown>('/api/orders');
     return unwrapList<Order>(raw, 'orders', 'pedidos');
   },
 
-  // POST /api/orders  ·  orders.write  ·  Cliente u Operador
   createOrder: (api: ApiClient, order: NuevoPedido): Promise<Order> =>
     api.post<Order>('/api/orders', order),
 
-  // PUT /api/orders/{id}  ·  orders.write  ·  Cliente (propio) u Operador
   updateOrder: (api: ApiClient, id: string, order: NuevoPedido): Promise<Order> =>
     api.put<Order>(`/api/orders/${encodeURIComponent(id)}`, order),
 
-  // PATCH /api/orders/{id}/status  ·  orders.write  ·  rol Operador
+  // cambiar el estado es solo del operador
   updateStatus: (api: ApiClient, id: string, estado: OrderStatus): Promise<Order> =>
     api.request<Order>(`/api/orders/${encodeURIComponent(id)}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ estado }),
     }),
 
-  // DELETE /api/orders/{id}  ·  orders.write  ·  Cliente (propio) u Operador
   deleteOrder: (api: ApiClient, id: string): Promise<{ eliminado: string }> =>
     api.del<{ eliminado: string }>(`/api/orders/${encodeURIComponent(id)}`),
 };

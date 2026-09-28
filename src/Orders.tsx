@@ -1,12 +1,3 @@
-// src/Orders.tsx
-// Vista PROTEGIDA: CRUD de PEDIDOS, del Cliente y del Operador.
-//
-// El Admin no entra acá (lo detiene el guard de App.tsx y, si llama la API
-// directo, la Lambda responde 403): administra el catálogo, no los pedidos.
-//
-// Permisos dentro de la vista:
-//   Cliente  — crea, edita y elimina SUS pedidos mientras están en CREADO.
-//   Operador — lo mismo sobre todos, y además avanza el ciclo de estados.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useApi } from './useApi';
@@ -28,7 +19,6 @@ const formVacio = { clienteId: '', productoId: '', cantidad: '1' };
 
 export function OrdersView() {
   const api = useApi();
-  // El Operador ve y opera sobre todos los pedidos y avanza sus estados.
   const { has } = useRoles();
   const esOperador = has('Operador');
 
@@ -43,11 +33,8 @@ export function OrdersView() {
   const [saving, setSaving] = useState(false);
 
   const loadOrders = useCallback(async () => {
-    // `api` es null mientras MSAL aún no resuelve la cuenta activa.
     if (!api) return;
     try {
-      // Nada de setState antes del await: el estado de carga arranca en `true`
-      // y solo se apaga al terminar, así el efecto no encadena renders.
       const data = await ordersApi.getOrders(api);
       setOrders(data);
       setError(null);
@@ -62,8 +49,7 @@ export function OrdersView() {
     loadOrders();
   }, [loadOrders]);
 
-  // El catálogo alimenta el selector de productos. Si falla no bloqueamos la
-  // vista: los pedidos existentes se siguen viendo.
+  // si el catalogo falla no bloqueamos la pantalla
   useEffect(() => {
     if (!api) return;
     let cancelado = false;
@@ -125,7 +111,7 @@ export function OrdersView() {
       return;
     }
 
-    // El Cliente no manda clienteId: el servidor usa la identidad del token.
+    // el cliente no manda clienteId, el servidor lo saca del token
     const cuerpo = {
       clienteId: esOperador ? form.clienteId.trim() : '',
       items: [{ productoId: form.productoId, cantidad }],
