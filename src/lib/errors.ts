@@ -3,7 +3,7 @@ import { ApiError } from '../api/client';
 
 const PISTAS: Record<number, string> = {
   401: 'Sesión o token inválido para la API: lo rechazó el JWT authorizer (firma, issuer, audience o expiración).',
-  403: 'Te falta el scope o el App Role que exige la Lambda.',
+  403: 'Te falta el scope (lo revisa el API Gateway) o el App Role (lo revisa la Lambda).',
   404: 'Esa ruta no existe en el API Gateway (¿falta crearla o desplegar la Lambda?).',
   500: 'Error interno del backend. Revisa los logs de la Lambda en CloudWatch.',
   502: 'El API Gateway no pudo invocar la Lambda (revisa la integración y los permisos).',
