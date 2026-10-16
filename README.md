@@ -4,6 +4,8 @@ Frontend del sistema **Pedidos360**: gestión de pedidos y catálogo,
 notificaciones asíncronas y administración de la mensajería, con login
 corporativo mediante **Microsoft Entra ID** y autorización por rol.
 
+**Publicado en AWS Amplify:** https://main.d2yxpu4vls3p92.amplifyapp.com
+
 Backend: [Cris2427/back-pedidos360](https://github.com/Cris2427/back-pedidos360)
 
 > **DSY1107 · Desarrollo Cloud Native I** — Evaluaciones Parciales N°1 y N°3.
@@ -55,6 +57,34 @@ corepack pnpm dev         # http://localhost:5173
 Otros comandos: `corepack pnpm build` (build + type-check) y
 `corepack pnpm lint` (oxlint).
 
+## Desplegar
+
+```bash
+powershell -File infra\deploy-front.ps1 -WhatIf   # muestra qué haría, sin tocar nada
+powershell -File infra\deploy-front.ps1
+```
+
+Publica el build en **AWS Amplify Hosting**, sin conectar GitHub: crea la app
+y la rama si no existen, compila, sube el ZIP y espera a que termine. Se puede
+correr las veces que haga falta.
+
+Tres detalles que resuelve el script:
+
+- **La dirección de retorno del login** se fija al compilar. El script compila
+  con la URL de Amplify; el `.env` sigue con `localhost` para desarrollar.
+- **Las rutas de React** (`/orders`, `/messaging`) no son archivos: una regla de
+  la app devuelve `index.html` para que no den 404 al recargar.
+- **El ZIP se arma con `/`** en las rutas internas: el `Compress-Archive` de
+  PowerShell 5.1 puede usar `\`, y Amplify, que corre en Linux, no encontraría
+  los archivos de `assets/`.
+
+Para que el login funcione en la versión publicada, su URL tiene que estar en
+Entra ID como **URI de redirección** de la aplicación de página única, y en el
+**CORS** del API Gateway (lo configura el script del backend).
+
+No se usó CloudFront porque el Learner Lab de AWS Academy no lo permite, y un
+bucket de S3 solo sirve por HTTP, que Entra ID no acepta para el login.
+
 ### Configuración
 
 Todo sale del `.env` (ver [`.env.example`](.env.example)); no hay valores
@@ -100,6 +130,8 @@ src/
   Messaging.tsx       crear y eliminar colas; ver topics y suscripciones (solo Admin)
   TokenInspector.tsx  claims del token, para verificar la configuración
   index.css           sistema visual completo
+infra/
+  deploy-front.ps1    publica el build en AWS Amplify
 ```
 
 Hay una guía de lectura más detallada en [`ARQUITECTURA.md`](ARQUITECTURA.md):
