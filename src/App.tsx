@@ -9,12 +9,16 @@ import { Landing } from './Landing';
 import { Dashboard } from './Dashboard';
 import { CatalogView } from './Catalog';
 import { OrdersView } from './Orders';
+import { NotificationsView } from './Notifications';
+import { MessagingView } from './Messaging';
 
 // que ve cada perfil, la misma tabla que aplica el backend
 const SECCIONES = [
   { to: '/dashboard', texto: 'Dashboard', roles: null },
   { to: '/catalog', texto: 'Catálogo', roles: ['Admin', 'Operador'] },
   { to: '/orders', texto: 'Pedidos', roles: ['Cliente', 'Operador'] },
+  { to: '/notifications', texto: 'Notificaciones', roles: ['Cliente', 'Operador'] },
+  { to: '/messaging', texto: 'Mensajería', roles: ['Admin'] },
 ];
 
 function Nav() {
@@ -104,10 +108,15 @@ export default function App() {
 
               <Route element={<RequireRole role={['Cliente', 'Operador']} />}>
                 <Route path="/orders" element={<OrdersView />} />
+                <Route path="/notifications" element={<NotificationsView />} />
               </Route>
 
               <Route element={<RequireRole role={['Admin', 'Operador']} />}>
                 <Route path="/catalog" element={<CatalogView />} />
+              </Route>
+
+              <Route element={<RequireRole role="Admin" />}>
+                <Route path="/messaging" element={<MessagingView />} />
               </Route>
             </Route>
 

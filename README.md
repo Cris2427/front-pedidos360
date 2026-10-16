@@ -1,11 +1,12 @@
 # front-pedidos360
 
-Frontend del sistema **Pedidos360**: gestión de pedidos y catálogo, con login
+Frontend del sistema **Pedidos360**: gestión de pedidos y catálogo,
+notificaciones asíncronas y administración de la mensajería, con login
 corporativo mediante **Microsoft Entra ID** y autorización por rol.
 
 Backend: [Cris2427/back-pedidos360](https://github.com/Cris2427/back-pedidos360)
 
-> **DSY1107 · Desarrollo Cloud Native I** — Evaluación Parcial N°1.
+> **DSY1107 · Desarrollo Cloud Native I** — Evaluaciones Parciales N°1 y N°3.
 > Cristian Tapia · Camila Malhue
 
 ## Qué hace
@@ -14,12 +15,20 @@ Tres perfiles, y cada uno ve y puede cosas distintas:
 
 | Rol | Menú | Qué puede hacer |
 |---|---|---|
-| **Cliente** | Dashboard · Pedidos | Crear, editar y eliminar **sus** pedidos mientras están en CREADO |
-| **Operador** | Dashboard · Catálogo · Pedidos | Todo lo anterior sobre todos los pedidos, y avanzar el ciclo de estados |
-| **Admin** | Dashboard · Catálogo | Administrar productos y stock. No participa del CRUD de pedidos |
+| **Cliente** | Dashboard · Pedidos · Notificaciones | Crear, editar y eliminar **sus** pedidos mientras están en CREADO; ver sus correos y boletas |
+| **Operador** | Dashboard · Catálogo · Pedidos · Notificaciones | Todo lo anterior sobre todos los pedidos, avanzar el ciclo de estados y ver todo lo que hizo la mensajería |
+| **Admin** | Dashboard · Catálogo · Mensajería | Administrar productos y stock; crear y eliminar colas, y ver topics y suscripciones. No participa del CRUD de pedidos |
 
 El **dashboard se adapta al perfil**: el Cliente ve sus pedidos y su gasto, el
 Operador la operación completa, el Admin el inventario.
+
+Las **notificaciones** llegan unos segundos después de cada cambio de estado,
+porque las procesa la mensajería (SNS + SQS + Lambda) y no la petición; la
+pantalla se refresca sola cada 10 segundos y las ordena por la hora del evento.
+
+La pantalla de **mensajería** no valida nada por su cuenta: las reglas son del
+servidor, y cuando rechaza algo (un nombre inválido, borrar una cola que una
+Lambda está consumiendo) muestra su motivo exacto.
 
 ## Cómo está protegido
 
@@ -57,9 +66,10 @@ VITE_API_BASE_URL=https://<id-de-tu-api>.execute-api.us-east-1.amazonaws.com
 ```
 
 En Entra ID hacen falta **dos registros de aplicación**: uno para este frontend
-(SPA, con Authorization Code + PKCE) y otro para la API, que expone los cuatro
-scopes (`orders.read`, `orders.write`, `catalog.read`, `catalog.write`) y
-define los tres App Roles.
+(SPA, con Authorization Code + PKCE) y otro para la API, que expone cinco
+scopes (`orders.read`, `orders.write`, `catalog.read`, `catalog.write` y
+`messaging.manage`) y define los tres App Roles. `messaging.manage` es solo
+para administradores: hay que conceder el consentimiento de administrador.
 
 ## Estructura
 
@@ -76,6 +86,8 @@ src/
     client.ts         token + Authorization: Bearer + errores normalizados
     catalog.ts        las cinco operaciones del catálogo
     orders.ts         las cinco de pedidos + la máquina de estados
+    notifications.ts  lo que registraron los consumidores
+    messaging.ts      el microservicio administrador de colas, topics y bindings
   lib/
     jwt.ts            decodifica el token para inspeccionarlo (no valida firma)
     errors.ts         traduce un error HTTP a un mensaje entendible
@@ -84,6 +96,8 @@ src/
   Dashboard.tsx       resumen según el perfil
   Catalog.tsx         CRUD de productos y stock
   Orders.tsx          CRUD de pedidos y ciclo de estados
+  Notifications.tsx   correos, órdenes de bodega y boletas, con refresco
+  Messaging.tsx       crear y eliminar colas; ver topics y suscripciones (solo Admin)
   TokenInspector.tsx  claims del token, para verificar la configuración
   index.css           sistema visual completo
 ```
