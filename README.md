@@ -1,14 +1,15 @@
 # front-pedidos360
 
 Frontend del sistema **Pedidos360**: gestión de pedidos y catálogo,
-notificaciones asíncronas y administración de la mensajería, con login
-corporativo mediante **Microsoft Entra ID** y autorización por rol.
+notificaciones asíncronas, administración de la mensajería y, con Kafka,
+reportes en vivo, auditoría y administración del clúster. Login corporativo
+mediante **Microsoft Entra ID** y autorización por rol.
 
 **Publicado en AWS Amplify:** https://main.d2yxpu4vls3p92.amplifyapp.com
 
 Backend: [Cris2427/back-pedidos360](https://github.com/Cris2427/back-pedidos360)
 
-> **DSY1107 · Desarrollo Cloud Native I** — Evaluaciones Parciales N°1 y N°3.
+> **DSY1107 · Desarrollo Cloud Native I** — Evaluaciones Parciales N°1, N°3 y N°5.
 > Cristian Tapia · Camila Malhue
 
 ## Qué hace
@@ -18,8 +19,8 @@ Tres perfiles, y cada uno ve y puede cosas distintas:
 | Rol | Menú | Qué puede hacer |
 |---|---|---|
 | **Cliente** | Dashboard · Pedidos · Notificaciones | Crear, editar y eliminar **sus** pedidos mientras están en CREADO; ver sus correos y boletas |
-| **Operador** | Dashboard · Catálogo · Pedidos · Notificaciones | Todo lo anterior sobre todos los pedidos, avanzar el ciclo de estados y ver todo lo que hizo la mensajería |
-| **Admin** | Dashboard · Catálogo · Mensajería | Administrar productos y stock; crear y eliminar colas, y ver topics y suscripciones. No participa del CRUD de pedidos |
+| **Operador** | Dashboard · Catálogo · Pedidos · Notificaciones · Reportes | Todo lo anterior sobre todos los pedidos, avanzar el ciclo de estados, ver todo lo que hizo la mensajería y los reportes |
+| **Admin** | Dashboard · Catálogo · Mensajería · Reportes · Auditoría · Kafka | Administrar productos y stock; crear y eliminar colas, y ver topics y suscripciones; ver reportes y auditoría; administrar tópicos, grupos y DLT de Kafka. No participa del CRUD de pedidos |
 
 El **dashboard se adapta al perfil**: el Cliente ve sus pedidos y su gasto, el
 Operador la operación completa, el Admin el inventario.
@@ -31,6 +32,13 @@ pantalla se refresca sola cada 10 segundos y las ordena por la hora del evento.
 La pantalla de **mensajería** no valida nada por su cuenta: las reglas son del
 servidor, y cuando rechaza algo (un nombre inválido, borrar una cola que una
 Lambda está consumiendo) muestra su motivo exacto.
+
+Las pantallas **Reportes**, **Auditoría** y **Kafka** llaman a las APIs de la
+carpeta `kafka/` del backend, que corren en el equipo local y validan el mismo
+access token. Reportes se actualiza cada 5 segundos: mientras corre el
+publicador de eventos, los números suben en vivo. Kafka sigue la misma regla
+que Mensajería: lo que el administrador rechaza (borrar un tópico de
+Pedidos360, mover un grupo que está leyendo) se muestra con su motivo.
 
 ## Cómo está protegido
 
@@ -95,6 +103,16 @@ la API:
 VITE_API_BASE_URL=https://<id-de-tu-api>.execute-api.us-east-1.amazonaws.com
 ```
 
+Las pantallas de Kafka usan además las APIs locales. Si estas líneas no
+están, esas pantallas no aparecen; el script de despliegue las deja vacías,
+así que el front publicado en Amplify no las muestra:
+
+```
+VITE_REPORT_API_URL=http://localhost:3001
+VITE_AUDIT_API_URL=http://localhost:3003
+VITE_KAFKA_ADMIN_URL=http://localhost:3004
+```
+
 En Entra ID hacen falta **dos registros de aplicación**: uno para este frontend
 (SPA, con Authorization Code + PKCE) y otro para la API, que expone cinco
 scopes (`orders.read`, `orders.write`, `catalog.read`, `catalog.write` y
@@ -111,13 +129,15 @@ src/
   RequireAuth.tsx     guard de autenticación
   RequireRole.tsx     guard de autorización
   useRoles.ts         App Roles del usuario, desde el access token
-  useApi.ts           cliente HTTP ligado a la cuenta activa
+  useApi.ts           cliente HTTP ligado a la cuenta activa y a la API que se le pida
   api/
     client.ts         token + Authorization: Bearer + errores normalizados
     catalog.ts        las cinco operaciones del catálogo
     orders.ts         las cinco de pedidos + la máquina de estados
     notifications.ts  lo que registraron los consumidores
     messaging.ts      el microservicio administrador de colas, topics y bindings
+    analytics.ts      reportes y auditoría (APIs de Kafka)
+    kafka.ts          el microservicio administrador de Kafka
   lib/
     jwt.ts            decodifica el token para inspeccionarlo (no valida firma)
     errors.ts         traduce un error HTTP a un mensaje entendible
@@ -128,6 +148,10 @@ src/
   Orders.tsx          CRUD de pedidos y ciclo de estados
   Notifications.tsx   correos, órdenes de bodega y boletas, con refresco
   Messaging.tsx       crear y eliminar colas; ver topics y suscripciones (solo Admin)
+  Reports.tsx         KPIs calculados con Kafka, con refresco cada 5 s
+  Audit.tsx           historial de un pedido y búsqueda de registros (solo Admin)
+  Kafka.tsx           tópicos, grupos y DLT del clúster (solo Admin)
+  Graficos.tsx        indicadores y barras del dashboard y los reportes
   TokenInspector.tsx  claims del token, para verificar la configuración
   index.css           sistema visual completo
 infra/

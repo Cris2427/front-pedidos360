@@ -27,6 +27,27 @@ Las tres capas de control son **independientes a propósito**: el menú oculta,
 el guard bloquea la vista, y la Lambda decide de verdad. Las dos primeras son
 comodidad; la tercera es la seguridad.
 
+## El recorrido de un evento de Kafka
+
+Las pantallas Reportes y Auditoría no leen DynamoDB: leen lo que armaron los
+consumidores de Kafka (carpeta `kafka/` del backend).
+
+```
+1. Publicador  bridge/producer.js valida el evento con el DTO y lo publica
+               en pedidos.eventos con key pedidoId
+2. Kafka       el líder de la partición lo guarda; con acks=all responde
+               cuando otra copia también lo tiene (min ISR 2)
+3. report      el grupo report lo lee, revisa la transición y actualiza el
+               pedido en PostgreSQL (o lo manda a su DLT)
+4. audit       el grupo audit lo lee y publica en audit.timeline quién hizo
+               qué, cuándo y desde dónde
+5. timeline    el grupo audit-timeline guarda ese registro en PostgreSQL
+6. Navegador   Reports.tsx pide /api/report/... cada 5 s con el mismo
+               access token de la API
+7. Filtro JWT  shared/auth.js valida firma, emisor, audiencia, scope y
+               App Role: 401 o 403 si algo falla, los KPIs si todo calza
+```
+
 ---
 
 ## Frontend (`src/`)
@@ -58,9 +79,13 @@ comodidad; la tercera es la seguridad.
 
 | Archivo | Para qué |
 |---|---|
-| `api/client.ts` | El cliente HTTP reutilizable. Obtiene el token, inyecta `Authorization: Bearer`, normaliza errores en `ApiError`. Si el token silencioso falla, cae a un redirect interactivo. |
+| `api/client.ts` | El cliente HTTP reutilizable. Obtiene el token, inyecta `Authorization: Bearer`, normaliza errores en `ApiError`. Si el token silencioso falla, cae a un redirect interactivo. Recibe la URL de la API: por defecto la de AWS, y las pantallas de Kafka pasan la suya. |
 | `api/catalog.ts` | Las cinco operaciones del catálogo, una por endpoint. |
 | `api/orders.ts` | Las cinco de pedidos, más la máquina de estados que la UI usa para dibujar solo los botones válidos. |
+| `api/notifications.ts` | Lo que registraron los consumidores de la mensajería. |
+| `api/messaging.ts` | El microservicio administrador de colas, topics y suscripciones. |
+| `api/analytics.ts` | Las APIs de Kafka de reportes y auditoría. Si el servicio no está corriendo, dice cuál. |
+| `api/kafka.ts` | El microservicio administrador de Kafka: tópicos, grupos y DLT. |
 | `lib/errors.ts` | Traduce un error a un mensaje que se entiende. Si el backend explicó el problema, ese mensaje manda; si no, una pista según el código (401 token, 403 permiso, 404 ruta…). |
 | `lib/format.ts` | Formato de pesos chilenos y de números. En un solo lugar para que no se repita. |
 
@@ -72,18 +97,30 @@ comodidad; la tercera es la seguridad.
 | `Dashboard.tsx` | Resumen **según el perfil**: el Cliente ve sus pedidos, el Operador la operación completa, el Admin el inventario. Cada panel pide solo los endpoints que su rol puede leer. |
 | `Catalog.tsx` | CRUD de productos y ajuste de stock. El Operador entra en modo consulta. |
 | `Orders.tsx` | CRUD de pedidos y avance del ciclo de estados. |
+| `Notifications.tsx` | Correos, órdenes de bodega y boletas, con refresco cada 10 s. |
+| `Messaging.tsx` | Colas, topics y suscripciones de la mensajería (solo Admin). |
+| `Reports.tsx` | Ventas por hora, productos más vendidos, pedidos activos y lead time por sucursal. Se actualiza cada 5 s (Operador y Admin). |
+| `Audit.tsx` | El historial de un pedido y la búsqueda de registros por usuario, evento y fechas (solo Admin). |
+| `Kafka.tsx` | Brokers, tópicos (crear, configurar, agregar particiones, borrar), grupos (mover offsets, borrar) y DLT (ver y reprocesar). Solo Admin. |
+| `Graficos.tsx` | Los indicadores y el gráfico de barras que usan el Dashboard y Reportes. |
 | `TokenInspector.tsx` | Muestra los claims del token (`aud`, `iss`, `scp`, `roles`, `exp`) y comprueba que llegaron los cuatro scopes. Es la evidencia de que la autenticación funciona. |
 
 ---
 
-## Backend (repositorio `ms-pedidos360-api`)
+## Backend (repositorio `back-pedidos360`)
 
 > El backend se entrega en un repositorio aparte. Las rutas de esta sección son
 > relativas a la raíz de **ese** repositorio, no de este.
 
-**Una Lambda por método y ruta**: 10 funciones independientes. Comparten un
-mismo zip y se distinguen por su `handler`, así cada ruta es una función
-distinta en AWS sin duplicar el código común.
+**Una Lambda por método y ruta**: 20 funciones de la API y 3 consumidoras de
+la mensajería. Comparten un mismo zip y se distinguen por su `handler`, así
+cada ruta es una función distinta en AWS sin duplicar el código común. Esta
+sección muestra las de pedidos y catálogo; las de notificaciones y del
+administrador de la mensajería están en el README del backend.
+
+Todo lo de Kafka vive en la carpeta `kafka/` del backend, y su README explica
+la arquitectura, los tópicos, la DLT, el administrador, el filtro JWT, la
+prueba completa y las decisiones de diseño.
 
 ### `handlers/` — una función por archivo
 
@@ -144,8 +181,9 @@ incrementa con `ADD`, que es atómico. Ese documento se filtra de los listados.
 
 | Archivo | Para qué |
 |---|---|
-| `infra/deploy-aws.ps1` | Despliega todo de una: tablas, semilla, las 10 funciones, el authorizer, las integraciones, las rutas, el CORS y los permisos. Es idempotente y acepta `-WhatIf` para ver qué haría sin tocar nada. |
-| `infra/openapi-pedidos360.yaml` | La especificación de la API: los 10 endpoints con sus permisos, códigos de error y la Lambda de cada uno. Cubre el requisito de "OpenAPI por servicio". |
+| `infra/deploy-aws.ps1` | Despliega todo de una: tablas, semilla, las funciones, el authorizer, las integraciones, las rutas, el CORS, los permisos, el topic SNS y las colas con sus DLQ. Es idempotente y acepta `-WhatIf` para ver qué haría sin tocar nada. |
+| `infra/openapi-pedidos360.yaml` | La especificación de la API: los endpoints con sus permisos, códigos de error y la Lambda de cada uno. Cubre el requisito de "OpenAPI por servicio". |
+| `kafka/docker-compose.yml` | ZooKeeper, 3 brokers, Kafka UI y PostgreSQL para la parte de Kafka. |
 
 ---
 
@@ -153,21 +191,32 @@ incrementa con `ADD`, que es atómico. Ese documento se filtra de los listados.
 
 ```bash
 node test-local.mjs        # desde la raíz del repositorio del backend
+npm test                   # desde la carpeta kafka/ del backend
 ```
 
-52 comprobaciones sobre las 10 funciones, **sin credenciales de AWS ni red**:
-usan el store en memoria. Cubren permisos por scope y por rol, validaciones, el
-ciclo de estados, las reglas de stock, el aislamiento entre clientes, la
-numeración correlativa y las formas en que puede llegar el claim `roles`.
+157 comprobaciones de la API, la mensajería y su administrador, **sin
+credenciales de AWS ni red**: usan el store en memoria. Cubren permisos por
+scope y por rol, validaciones, el ciclo de estados, las reglas de stock, el
+aislamiento entre clientes, la numeración correlativa y las formas en que puede
+llegar el claim `roles`.
+
+Kafka tiene 81 pruebas más, **sin clúster ni PostgreSQL**: el DTO, el
+consumidor (reintentos y DLT), los KPIs, la auditoría, el administrador y el
+filtro JWT. La prueba completa contra el clúster está en el README de `kafka/`.
 
 ---
 
 ## Lo que NO está y por qué
 
-El caso completo tiene cinco módulos. Esta entrega cubre los dos que pide la
-evaluación —**Gestión de Pedidos** y **Catálogo**—. Quedan fuera, a propósito:
+El caso tiene cinco módulos y los cinco están: **Gestión de Pedidos** y
+**Catálogo** (API en AWS), **Notificaciones** (SNS + SQS + Lambda, en lugar de
+RabbitMQ) y **Reportería** y **Auditoría** (Kafka). Quedan fuera, a propósito:
 
-- **Notificaciones** (RabbitMQ), **Reportería** (Kafka) y **Auditoría**: son de
-  etapas posteriores del caso.
-- **Separar en dos Lambdas por dominio** (`ms-orders`, `ms-catalog`): hoy son 10
+- **El puente de la API de AWS a Kafka** (SNS → una cola SQS → Kafka): las
+  Lambdas no llegan a un Kafka que corre en el equipo local, así que los
+  eventos de Kafka los genera el publicador. Está explicado en el README de
+  `kafka/` (ADR-001).
+- **Las pantallas de Kafka en Amplify**: sus APIs corren en el equipo local,
+  así que el front publicado no las muestra.
+- **Separar en dos Lambdas por dominio** (`ms-orders`, `ms-catalog`): son
   funciones agrupadas por endpoint, que es lo que pidió el docente.
