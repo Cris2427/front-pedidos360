@@ -33,7 +33,8 @@ export interface Order {
 export const ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   CREADO: ['ACEPTADO', 'CANCELADO'],
   ACEPTADO: ['EN_PREPARACION', 'CANCELADO'],
-  EN_PREPARACION: ['DESPACHADO'],
+  // se puede cancelar mientras no sale del local
+  EN_PREPARACION: ['DESPACHADO', 'CANCELADO'],
   DESPACHADO: ['ENTREGADO'],
   ENTREGADO: [],
   CANCELADO: [],

@@ -131,7 +131,7 @@ export function CatalogView() {
           <input
             value={form.nombre}
             onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-            placeholder="Notebook 14&quot;"
+            placeholder="Pizza Margarita"
             required
           />
         </label>
