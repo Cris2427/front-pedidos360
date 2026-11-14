@@ -58,9 +58,11 @@ export interface ApiClient {
 export function createApiClient(
   instance: IPublicClientApplication,
   account: AccountInfo,
+  // por defecto la api de la ep4 en aws; las de kafka pasan la suya
+  baseUrl: string = apiConfig.baseUrl,
 ): ApiClient {
   async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-    if (!apiConfig.baseUrl) {
+    if (!baseUrl) {
       throw new Error('VITE_API_BASE_URL no está configurado en .env');
     }
     if (apiConfig.scopes.length === 0) {
@@ -68,7 +70,7 @@ export function createApiClient(
     }
 
     const token = await acquireApiToken(instance, account);
-    const url = `${apiConfig.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+    const url = `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 
     // aca va el token en cada llamada
     const response = await fetch(url, {

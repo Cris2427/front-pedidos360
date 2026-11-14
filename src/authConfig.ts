@@ -39,3 +39,15 @@ export const apiConfig = {
 export const apiRequest = {
   scopes: apiConfig.scopes,
 };
+
+
+// las apis de kafka (report y audit) corren en el equipo, no en aws, y
+// aceptan el mismo token. si no estan en el .env sus pantallas no aparecen:
+// asi el front publicado en amplify no muestra secciones que no puede usar
+const urlDe = (valor: unknown) =>
+  typeof valor === 'string' ? valor.trim().replace(/\/$/, '') : '';
+
+export const analyticsConfig = {
+  reportUrl: urlDe(import.meta.env.VITE_REPORT_API_URL),
+  auditUrl: urlDe(import.meta.env.VITE_AUDIT_API_URL),
+};

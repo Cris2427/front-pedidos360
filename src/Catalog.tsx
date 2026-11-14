@@ -143,7 +143,7 @@ export function CatalogView() {
             step="1"
             value={form.precio}
             onChange={(e) => setForm({ ...form, precio: e.target.value })}
-            placeholder="499990"
+            placeholder="9990"
             required
           />
         </label>

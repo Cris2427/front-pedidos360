@@ -2,7 +2,7 @@ import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { useRoles } from './useRoles';
 import { InteractionStatus } from '@azure/msal-browser';
-import { loginRequest } from './authConfig';
+import { analyticsConfig, loginRequest } from './authConfig';
 import { RequireAuth } from './RequireAuth';
 import { RequireRole } from './RequireRole';
 import { Landing } from './Landing';
@@ -11,6 +11,8 @@ import { CatalogView } from './Catalog';
 import { OrdersView } from './Orders';
 import { NotificationsView } from './Notifications';
 import { MessagingView } from './Messaging';
+import { ReportsView } from './Reports';
+import { AuditView } from './Audit';
 
 // que ve cada perfil, la misma tabla que aplica el backend
 const SECCIONES = [
@@ -19,6 +21,11 @@ const SECCIONES = [
   { to: '/orders', texto: 'Pedidos', roles: ['Cliente', 'Operador'] },
   { to: '/notifications', texto: 'Notificaciones', roles: ['Cliente', 'Operador'] },
   { to: '/messaging', texto: 'Mensajería', roles: ['Admin'] },
+  // las de kafka, solo si su api esta en el .env
+  ...(analyticsConfig.reportUrl
+    ? [{ to: '/reports', texto: 'Reportes', roles: ['Operador', 'Admin'] }]
+    : []),
+  ...(analyticsConfig.auditUrl ? [{ to: '/audit', texto: 'Auditoría', roles: ['Admin'] }] : []),
 ];
 
 function Nav() {
@@ -118,6 +125,18 @@ export default function App() {
               <Route element={<RequireRole role="Admin" />}>
                 <Route path="/messaging" element={<MessagingView />} />
               </Route>
+              
+              {analyticsConfig.reportUrl && (
+                <Route element={<RequireRole role={['Operador', 'Admin']} />}>
+                  <Route path="/reports" element={<ReportsView />} />
+                </Route>
+              )}
+
+              {analyticsConfig.auditUrl && (
+                <Route element={<RequireRole role="Admin" />}>
+                  <Route path="/audit" element={<AuditView />} />
+                </Route>
+              )}
             </Route>
 
             <Route path="*" element={<Landing />} />

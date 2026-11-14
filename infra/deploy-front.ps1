@@ -79,6 +79,13 @@ if (-not $PSCmdlet.ShouldProcess($Url, 'compilar, subir y publicar')) { exit 0 }
 # entorno le gana al .env, que sigue con localhost para trabajar en local
 Write-Step 'Compilando con la dirección de Amplify'
 $env:VITE_AZURE_REDIRECT_URI = $Url
+
+# las pantallas de kafka llaman a servicios del equipo local: en amplify no
+# van. un espacio y no un texto vacio: en powershell, asignar '' borra la
+# variable y vite volveria a leer las del .env
+$env:VITE_REPORT_API_URL = ' '
+$env:VITE_AUDIT_API_URL = ' '
+
 Push-Location $Raiz
 try {
     corepack pnpm build
@@ -86,6 +93,7 @@ try {
 } finally {
     Pop-Location
     Remove-Item Env:VITE_AZURE_REDIRECT_URI -ErrorAction SilentlyContinue
+    Remove-Item Env:VITE_REPORT_API_URL, Env:VITE_AUDIT_API_URL -ErrorAction SilentlyContinue
 }
 Write-Ok "redirect del login: $Url"
 

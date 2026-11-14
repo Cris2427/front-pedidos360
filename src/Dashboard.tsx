@@ -5,6 +5,7 @@ import { useMsal } from '@azure/msal-react';
 import { useApi } from './useApi';
 import { useRoles } from './useRoles';
 import { TokenInspector } from './TokenInspector';
+import { Kpi, Barras } from './Graficos';
 import { ordersApi, ORDER_STATUS_LABEL, type Order, type OrderStatus } from './api/orders';
 import { catalogApi, type Product } from './api/catalog';
 import { describeError } from './lib/errors';
@@ -192,61 +193,5 @@ export function Dashboard() {
         <TokenInspector />
       </details>
     </div>
-  );
-}
-
-function Kpi({
-  etiqueta,
-  valor,
-  detalle,
-  alerta,
-}: {
-  etiqueta: string;
-  valor: string;
-  detalle?: string;
-  alerta?: boolean;
-}) {
-  return (
-    <div className="kpi">
-      <span className="kpi-label">{etiqueta}</span>
-      <span className={alerta ? 'kpi-value kpi-alerta' : 'kpi-value'}>{valor}</span>
-      {detalle && <span className="kpi-detalle">{detalle}</span>}
-    </div>
-  );
-}
-
-// el color no dice nada, el largo si
-function Barras({
-  titulo,
-  datos,
-  sufijo,
-}: {
-  titulo: string;
-  datos: { etiqueta: string; valor: number }[];
-  sufijo: string;
-}) {
-  const maximo = Math.max(...datos.map((d) => d.valor), 1);
-
-  return (
-    <figure className="grafico">
-      <figcaption className="grafico-titulo">{titulo}</figcaption>
-      {datos.map((d) => (
-        <div className="grafico-fila" key={d.etiqueta}>
-          <span className="grafico-etiqueta" title={d.etiqueta}>
-            {d.etiqueta}
-          </span>
-          <span className="grafico-pista">
-            <span
-              className="grafico-barra"
-              style={{ width: `${Math.max((d.valor / maximo) * 100, 2)}%` }}
-            />
-          </span>
-          <span className="grafico-valor">
-            {formatNumero(d.valor)}
-            {sufijo}
-          </span>
-        </div>
-      ))}
-    </figure>
   );
 }
