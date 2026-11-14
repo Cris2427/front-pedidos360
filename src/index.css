@@ -820,3 +820,68 @@ code.filtro {
   display: block;
   font-size: 0.78rem;
 }
+
+
+/* kafka: cada seccion separada de la anterior, y el detalle de un topico en
+   un recuadro debajo de la tabla */
+.panel-kafka {
+  margin-top: 2rem;
+}
+
+.panel-kafka .table-scroll {
+  margin-bottom: 1rem;
+}
+
+.detalle-kafka {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.1rem 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.detalle-kafka h4 {
+  font-size: 0.95rem;
+}
+
+.detalle-kafka .muted {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* estado de un grupo: leyendo, sin instancias o reorganizandose */
+.badge-grupo-stable {
+  background: var(--good-tint);
+  color: var(--good);
+  border-color: transparent;
+}
+
+.badge-grupo-empty {
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+
+.badge-grupo-preparingrebalance,
+.badge-grupo-completingrebalance {
+  background: var(--warn-tint);
+  color: var(--warn);
+  border-color: transparent;
+}
+
+/* dlt: pendiente de reprocesar o ya reprocesado */
+.badge-dlt-pendiente {
+  background: var(--warn-tint);
+  color: var(--warn);
+  border-color: transparent;
+}
+
+.badge-dlt-reprocesado {
+  background: var(--good-tint);
+  color: var(--good);
+  border-color: transparent;
+}
+
+.dlt-error {
+  display: block;
+  font-size: 0.8rem;
+  max-width: 42ch;
+}

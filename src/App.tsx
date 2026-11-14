@@ -13,6 +13,7 @@ import { NotificationsView } from './Notifications';
 import { MessagingView } from './Messaging';
 import { ReportsView } from './Reports';
 import { AuditView } from './Audit';
+import { KafkaView } from './Kafka';
 
 // que ve cada perfil, la misma tabla que aplica el backend
 const SECCIONES = [
@@ -26,6 +27,7 @@ const SECCIONES = [
     ? [{ to: '/reports', texto: 'Reportes', roles: ['Operador', 'Admin'] }]
     : []),
   ...(analyticsConfig.auditUrl ? [{ to: '/audit', texto: 'Auditoría', roles: ['Admin'] }] : []),
+  ...(analyticsConfig.kafkaAdminUrl ? [{ to: '/kafka', texto: 'Kafka', roles: ['Admin'] }] : []),
 ];
 
 function Nav() {
@@ -125,7 +127,7 @@ export default function App() {
               <Route element={<RequireRole role="Admin" />}>
                 <Route path="/messaging" element={<MessagingView />} />
               </Route>
-              
+
               {analyticsConfig.reportUrl && (
                 <Route element={<RequireRole role={['Operador', 'Admin']} />}>
                   <Route path="/reports" element={<ReportsView />} />
@@ -135,6 +137,12 @@ export default function App() {
               {analyticsConfig.auditUrl && (
                 <Route element={<RequireRole role="Admin" />}>
                   <Route path="/audit" element={<AuditView />} />
+                </Route>
+              )}
+              
+              {analyticsConfig.kafkaAdminUrl && (
+                <Route element={<RequireRole role="Admin" />}>
+                  <Route path="/kafka" element={<KafkaView />} />
                 </Route>
               )}
             </Route>

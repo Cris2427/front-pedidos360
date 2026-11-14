@@ -85,6 +85,7 @@ $env:VITE_AZURE_REDIRECT_URI = $Url
 # variable y vite volveria a leer las del .env
 $env:VITE_REPORT_API_URL = ' '
 $env:VITE_AUDIT_API_URL = ' '
+$env:VITE_KAFKA_ADMIN_URL = ' '
 
 Push-Location $Raiz
 try {
@@ -93,7 +94,7 @@ try {
 } finally {
     Pop-Location
     Remove-Item Env:VITE_AZURE_REDIRECT_URI -ErrorAction SilentlyContinue
-    Remove-Item Env:VITE_REPORT_API_URL, Env:VITE_AUDIT_API_URL -ErrorAction SilentlyContinue
+    Remove-Item Env:VITE_REPORT_API_URL, Env:VITE_AUDIT_API_URL, Env:VITE_KAFKA_ADMIN_URL -ErrorAction SilentlyContinue
 }
 Write-Ok "redirect del login: $Url"
 

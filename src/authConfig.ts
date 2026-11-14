@@ -50,4 +50,5 @@ const urlDe = (valor: unknown) =>
 export const analyticsConfig = {
   reportUrl: urlDe(import.meta.env.VITE_REPORT_API_URL),
   auditUrl: urlDe(import.meta.env.VITE_AUDIT_API_URL),
+  kafkaAdminUrl: urlDe(import.meta.env.VITE_KAFKA_ADMIN_URL),
 };
